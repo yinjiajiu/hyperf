@@ -1,0 +1,63 @@
+version: '3.4'
+services:
+  hyperf:
+    build: ./
+    #    for local develop
+    #    command: php -S 127.0.0.1:13300
+    container_name: hyperf
+    environment:
+      - APP_ENV=dev
+      - TIMEZONE=Asia/Shanghai
+    restart: always
+    ports:
+      - "8080:8080"
+      - "9501:9501"
+    stdin_open: true
+    tty: true
+    networks:
+      - hyperf
+    volumes:
+      - ./www:/var/www
+      - ./php.ini:/usr/local/etc/php/php.ini
+      # - ./runtime/ng-conf:/etc/nginx
+      # - ./runtime/logs:/var/log
+  mysql_hyperf:
+    image: mysql:latest
+    environment:
+      MYSQL_USER: yjj
+      MYSQL_PASSWORD: yjj94824
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: yjj94824
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+      --max_allowed_packet=128M;
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/my.cnf
+    container_name: mysql_hyperf
+    networks:
+      - hyperf
+
+  redis_hyperf:
+    image: redis:4-alpine
+    container_name: redis_hyperf
+    ports:
+      - "6379:6379"
+    sysctls:
+      net.core.somaxconn: 65535
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis.conf
+      - ./redis/data:/usr/local/redis/data
+      - ./redis/redis.log:/usr/local/redis/redis.log
+    networks:
+      - hyperf
+networks:
+    hyperf:
+
+
